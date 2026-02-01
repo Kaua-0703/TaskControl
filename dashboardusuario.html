@@ -10,67 +10,43 @@
 
 <body class="bg-light p-3">
 
-    <ul class="list-group list-group-horizontal mb-3">
-        <li class="list-group-item border-0 bg-transparent p-0 me-2">
-            <a href="cadastro.html" class="btn btn-primary">
-                Adicionar usuário
-            </a>
-        </li>
-        <li>
-            <a href="dashboardtarefas.html" class="btn btn-secondary">
-                Voltar
-            </a>
-        </li>
-    </ul>
+    <div class="d-flex justify-content-end mb-3">
+        <a href="cadastrousuario.html" class="btn btn-primary">
+            ➕ Adicionar Usuário
+        </a>
+    </div>
 
-    <ul class="list-group list-group-horizontal mb-2 text-muted fw-semibold">
-        <li class="list-group-item flex-fill border-0 bg-transparent" onclick="ordenarPorNome()" style="cursor:pointer">
-            Id ⬍
-        </li>
-        <li class="list-group-item flex-fill border-0 bg-transparent text-center">
-            Nome
-        </li>
-        <li class="list-group-item flex-fill border-0 bg-transparent text-end">
-            Email
-        </li>
-        <li class="list-group-item flex-fill border-0 bg-transparent text-end">
-            Administrador
-        </li>
-    </ul>
-    <ul class="list-group" id="listaUsuarios">
+    <table class="table table-hover shadow-sm bg-white" id="tabelaUsuarios">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th class="text-end">Administrador</th>
+            </tr>
+        </thead>
 
-        <li class="list-group-item rounded shadow-sm mb-3">
-            <ul class="list-group list-group-horizontal border-0">
-                <li class="list-group-item border-0 flex-fill">
-                    Eduardo
-                </li>
-                <li class="list-group-item border-0 flex-fill text-center">
-                    eduardo@email.com
-                </li>
-                <li class="list-group-item border-0 flex-fill text-end">
-                    Sim
-                </li>
-                <li></li>
-            </ul>
-        </li>
-    </ul>
+        <tbody id="corpoUsuarios">
+            <tr>
+                <td>Id</td>
+                <td>Nome</td>
+                <td>Email</td>
+                <td>Administrador</td>
+            </tr>
+        </tbody>
+    </table>
 
     <script>
-        function ordenarPorNome() {
-            let lista = document.getElementById("listaUsuarios");
-            let itens = Array.from(lista.children);
-
-            itens.sort(function (a, b) {
-                let nomeA = a.querySelector("li").innerText;
-                let nomeB = b.querySelector("li").innerText;
-                return nomeA.localeCompare(nomeB);
-            });
-
-            lista.innerHTML = "";
-            itens.forEach(item => lista.appendChild(item));
+        function carregarUsuarios() {
+            fetch("api/usuario.php?acao=listar")
+                .then(r => r.text())
+                .then(html => {
+                    document.getElementById("corpoUsuarios").innerHTML = html;
+                });
         }
-    </script>
-    
-</body>
 
+        carregarUsuarios();
+    </script>
+
+</body>
 </html>
