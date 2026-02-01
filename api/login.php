@@ -10,7 +10,7 @@ if ($email == "" || $senha == "") {
   exit;
 }
 
-$sql = $pdo->prepare("SELECT id, email, senha, admin FROM usuarios WHERE email = ? LIMIT 1");
+$sql = $pdo->prepare("SELECT id, email, senha, admin FROM usuario WHERE email = ? LIMIT 1");
 $sql->execute([$email]);
 $retorno = $sql->fetch(PDO::FETCH_ASSOC);
 
@@ -20,9 +20,9 @@ if (!$retorno) {
   exit;
 }
 
-if (!($senha == $retorno["senha"])) {
+if (!(password_verify(trim($senha), trim($retorno["senha"])))) {
   http_response_code(401);
-  echo "Usuário ou senha inválidos.";
+  echo "Usuário ou senha inválidos./n" . password_hash(trim($senha), PASSWORD_DEFAULT) . " /n " . trim($retorno["senha"]);
   exit;
 }
 

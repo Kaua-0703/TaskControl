@@ -8,7 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 header('Content-Type: application/json; charset=utf-8');
 
 $DB_HOST = 'localhost';
-$DB_NAME = 'projetophp';
+$DB_NAME = 'taskcontrol';
 $DB_USER = 'root';
 $DB_PASS = '';
 
