@@ -27,28 +27,26 @@
     </table>
 
     <table class="table table-hover shadow-sm bg-white" id="tabelaTarefas">
-
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Usuario</th>
-                <th>Titulo</th>
+                <th>Usuário</th>
+                <th>Título</th>
                 <th>Descrição</th>
-                <th>Data criacao</th>
+                <th>Data criação</th>
                 <th>Data limite</th>
                 <th>Status</th>
             </tr>
         </thead>
+
         <tbody id="corpoTarefas">
-            <tr>
-            </tr>
+            <tr></tr>
         </tbody>
     </table>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <script>
-
         function carregarTarefas() {
             fetch("api/tarefa.php?acao=listar")
                 .then(r => r.text())
@@ -59,8 +57,59 @@
 
         carregarTarefas();
 
+        function excluirTarefa(id) {
+
+            if (!confirm("Tem certeza que deseja excluir esta tarefa?")) {
+                return;
+            }
+
+            $.ajax({
+                url: "api/tarefa.php?acao=excluir",
+                method: "POST",
+                data: {
+                    id: id
+                },
+                dataType: "text"
+            })
+            .done(function (res) {
+                if (res.trim() === "OK") {
+                    carregarTarefas();
+                } else {
+                    alert("Erro ao excluir tarefa. " + res);
+                }
+            })
+            .fail(function (xhr) {
+                var txt = xhr.responseText && xhr.responseText.trim() !== ""
+                    ? xhr.responseText
+                    : "Erro ao excluir tarefa.";
+
+                alert(txt);
+            });
+        }
+
+        function concluirTarefa(id) {
+            if (!confirm("Marcar esta tarefa como concluída?")) {
+                return;
+            }
+
+            $.ajax({
+                url: "api/tarefa.php?acao=concluir",
+                method: "POST",
+                data: { id: id },
+                dataType: "text"
+            })
+            .done(function (res) {
+                if (res.trim() === "OK") {
+                    carregarTarefas();
+                } else {
+                    alert(res);
+                }
+            })
+            .fail(function () {
+                alert("Erro ao concluir tarefa.");
+            });
+        }
     </script>
 
 </body>
-
 </html>

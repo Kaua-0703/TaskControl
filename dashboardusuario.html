@@ -58,31 +58,35 @@
         carregarUsuarios();
     </script>
     <script>
-function excluirUsuario(id) {
-    console.log("clicou no id:", id);
 
-    if (!confirm("Deseja realmente excluir este usuário?")) return;
+        function excluirUsuario(id) {
+            console.log("clicou no id:", id);
 
-    fetch("api/usuario.php?acao=excluir", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "id=" + id
-    })
-    .then(r => r.text())
-    .then(res => {
-        console.log("resposta:", res);
-        if (res.trim() === "OK") {
-            carregarUsuarios();
-        } else {
-            alert(res);
+            if (!confirm("Deseja realmente excluir este usuário?")) return;
+
+            fetch("api/usuario.php?acao=excluir", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "id=" + id
+            })
+                .then(r => r.text())
+                .then(res => {
+                    console.log("resposta:", res);
+                    if (res.trim() === "OK") {
+                        carregarUsuarios();
+                    } else {
+                        alert(res);
+                    }
+                })
+                .catch(err => console.error(err));
         }
-    })
-    .catch(err => console.error(err));
-}
-</script>
 
+        function editarUsuario(id) {
+            window.location.href = "editarusuarios.html?id=" + id;
+        }
+    </script>
 
 </body>
 

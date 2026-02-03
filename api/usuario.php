@@ -19,11 +19,15 @@ if ($acao === "listar") {
         $bodyUsuarios .= "<td class='text-end'>" . ($retorno['admin'] ? "Sim" : "Não") . "</td>";
 
         $bodyUsuarios .= "<td class='text-end'>
+                            <button class='btn btn-warning btn-sm me-1'
+                                onclick='editarUsuario({$retorno['id']})'>
+                                Editar
+                            </button>
                             <button class='btn btn-danger btn-sm'
-                                onclick='excluirUsuario(\"{$retorno['id']}\")'>
+                                onclick='excluirUsuario({$retorno['id']})'>
                                 Excluir
                             </button>
-                          </td>";
+                         </td>";
 
         $bodyUsuarios .= "</tr>";
     }
@@ -55,7 +59,7 @@ if ($acao === "cadastrar"){
 
 if ($acao === "excluir") {
 
-    $id = isset($_POST["id"]) ? (int)$_POST["id"] : 0;
+    $id = isset($_POST["id"]) ? (int)$_POST["id"] : "";
 
     if ($id <= 0) {
         http_response_code(400);
@@ -68,4 +72,35 @@ if ($acao === "excluir") {
 
     echo "OK";
 }
+
+if ($acao === "buscar") {
+
+    $id = intval($_POST["id"]);
+
+    $sql = $pdo->prepare("SELECT id, nome, email, admin FROM usuario WHERE id = ?");
+    $sql->execute([$id]);
+
+    echo json_encode($sql->fetch(PDO::FETCH_ASSOC));
+    exit;
+}
+
+
+if ($acao === "atualizar") {
+
+    $id = intval($_POST["id"]);
+    $nome = trim($_POST["nome"]);
+    $email = trim($_POST["email"]);
+    $admin = $_POST["admin"] === "true" ? 1 : 0;
+
+    $sql = $pdo->prepare(
+        "UPDATE usuario SET nome = ?, email = ?, admin = ? WHERE id = ?"
+    );
+
+    $sql->execute([$nome, $email, $admin, $id]);
+
+    echo "OK";
+    exit;
+}
+
+
 ?>
