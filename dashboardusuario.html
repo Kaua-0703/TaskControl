@@ -10,11 +10,21 @@
 
 <body class="bg-light p-3">
 
-    <div class="d-flex justify-content-end mb-3">
-        <a href="cadastrousuario.html" class="btn btn-primary">
-            ➕ Adicionar Usuário
-        </a>
-    </div>
+    <table class="table mb-3">
+        <tr>
+            <td class="text-start">
+                <a href="dashboardtarefas.html" class="btn btn-primary">
+                    Voltar
+                </a>
+            </td>
+            <td class="text-end">
+                <a href="cadastrousuario.html" class="btn btn-primary">
+                    ➕ Adicionar Usuário
+                </a>
+            </td>
+        </tr>
+    </table>
+
 
     <table class="table table-hover shadow-sm bg-white" id="tabelaUsuarios">
         <thead>
@@ -47,6 +57,33 @@
 
         carregarUsuarios();
     </script>
+    <script>
+function excluirUsuario(id) {
+    console.log("clicou no id:", id);
+
+    if (!confirm("Deseja realmente excluir este usuário?")) return;
+
+    fetch("api/usuario.php?acao=excluir", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "id=" + id
+    })
+    .then(r => r.text())
+    .then(res => {
+        console.log("resposta:", res);
+        if (res.trim() === "OK") {
+            carregarUsuarios();
+        } else {
+            alert(res);
+        }
+    })
+    .catch(err => console.error(err));
+}
+</script>
+
 
 </body>
+
 </html>

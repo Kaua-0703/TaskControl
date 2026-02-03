@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Nova Tarefa</title>
@@ -10,47 +11,114 @@
 
 <body class="bg-light p-3">
 
-    <h5 class="mb-3">Nova Tarefa</h5>
+    <div class="container">
 
-    <form>
+        <h5 class="mb-3 text-center">Nova Tarefa</h5>
 
-        <ul class="list-group mb-3">
+        <form class="card shadow-sm" id="formNovaTarefa">
 
-            <li class="list-group-item">
-                <label class="form-label">Título da tarefa</label>
-                <input type="text" class="form-control" placeholder="Ex: Estudar PHP">
-            </li>
+            <div class="card-body">
 
-            <li class="list-group-item">
-                <label class="form-label">Descrição</label>
-                <textarea class="form-control" rows="3"
-                    placeholder="Descreva a tarefa"></textarea>
-            </li>
+                <div class="mb-3">
+                    <label class="form-label">Id usuario</label>
+                    <input type="text" class="form-control" id="id_usuario">
+                </div>
 
-            <li class="list-group-item">
-                <label class="form-label">Prazo</label>
-                <input type="date" class="form-control">
-            </li>
+                <div class="mb-3">
+                    <label class="form-label">Título da tarefa</label>
+                    <input type="text" class="form-control" placeholder="Ex: Estudar PHP" id="titulo">
+                </div>
 
-            <li class="list-group-item">
-                <label class="form-label">Status</label>
-                <select class="form-select">
-                    <option selected>Pendente</option>
-                    <option>Concluída</option>
-                </select>
-            </li>
+                <div class="mb-3">
+                    <label class="form-label">Descrição</label>
+                    <textarea class="form-control" rows="3" placeholder="Descreva a tarefa" id="descricao"></textarea>
+                </div>
 
-        </ul>
+                <div class="mb-3">
+                    <label class="form-label">Data Criação</label>
+                    <input type="date" class="form-control" id="data_criacao">
+                </div>
 
-        <button type="submit" class="btn btn-primary">
-            Salvar tarefa
-        </button>
+                <div class="mb-3">
+                    <label class="form-label">Data Limite</label>
+                    <input type="date" class="form-control" id="data_limite">
+                </div>
 
-        <a href="dashboardtarefas.html" class="btn btn-secondary">
-            Cancelar
-        </a>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="status">
+                        <option value="pendente" selected>Pendente</option>
+                        <option value="concluida">Concluída</option>
+                    </select>
+                </div>
 
-    </form>
+            </div>
+
+            <div id="msg" class="alert alert-danger d-none"></div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary" id="btnAdicionar">
+                    Salvar tarefa
+                </button>
+
+                <a href="dashboardtarefas.html" class="btn btn-secondary ms-2">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        $("#formNovaTarefa").on("submit", function (e) {
+            e.preventDefault();
+
+            $("#msg").addClass("d-none").text("");
+
+            var id_usuario = $("#id_usuario").val();
+            var titulo = $("#titulo").val().trim();
+            var descricao = $("#descricao").val().trim();
+            var status = $("#status").val();
+            var data_criacao = $("#data_criacao").val();
+            var data_limite = $("#data_limite").val();
+
+            $.ajax({
+                url: "api/tarefa.php?acao=cadastrar",
+                method: "POST",
+                data: {
+                    id_usuario: id_usuario,
+                    titulo: titulo,
+                    descricao: descricao,
+                    status: status,
+                    data_criacao: data_criacao,
+                    data_limite: data_limite
+                },
+                dataType: "text"
+            })
+                .done(function (res) {
+                    if (res.trim() === "OK") {
+                        window.location.href = "dashboardtarefas.html";
+                    } else {
+                        $("#msg").removeClass("d-none")
+                            .text("Erro ao adicionar uma tarefa. " + res);
+                    }
+                })
+                .fail(function (xhr) {
+                    var txt = xhr.responseText && xhr.responseText.trim() !== ""
+                        ? xhr.responseText
+                        : "Erro ao adicionar tarefa.";
+
+                    $("#msg").removeClass("d-none").text(txt);
+                })
+                .always(function () {
+                    $("#btnAdicionar").prop("disabled", false);
+                });
+            });
+    </script>
 
 </body>
+
 </html>
