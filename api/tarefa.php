@@ -6,15 +6,25 @@ $acao = isset($_GET["acao"]) ? trim($_GET["acao"]) : "";
 if ($acao === "listar") {
 
     $pagina = isset($_GET["pagina"]) ? (int) $_GET["pagina"] : 1;
-    $limite = 5;
+    $limite = 10;
     $offset = ($pagina - 1) * $limite;
 
     $sql = $pdo->prepare("
-        SELECT id, id_usuario, titulo, descricao, status, data_criacao, data_limite
-        FROM tarefas
-        ORDER BY id DESC
+        SELECT 
+            t.id,
+            t.id_usuario,
+            u.nome AS nome_usuario,
+            t.titulo,
+            t.descricao,
+            t.status,
+            t.data_criacao,
+            t.data_limite
+        FROM tarefas t
+        INNER JOIN usuario u ON u.id = t.id_usuario
+        ORDER BY t.id DESC
         LIMIT :limite OFFSET :offset
     ");
+
     $sql->bindValue(":limite", $limite, PDO::PARAM_INT);
     $sql->bindValue(":offset", $offset, PDO::PARAM_INT);
     $sql->execute();
@@ -28,6 +38,7 @@ if ($acao === "listar") {
         $bodyTarefas .= "<tr>";
         $bodyTarefas .= "<td>{$retorno['id']}</td>";
         $bodyTarefas .= "<td>{$retorno['id_usuario']}</td>";
+        $bodyTarefas .= "<td>{$retorno['nome_usuario']}</td>";
         $bodyTarefas .= "<td>{$retorno['titulo']}</td>";
         $bodyTarefas .= "<td>{$retorno['descricao']}</td>";
         $bodyTarefas .= "<td>{$retorno['data_criacao']}</td>";
@@ -43,8 +54,18 @@ if ($acao === "listar") {
                     Concluir
                 </button>
             ";
+        } else {
+            $bodyTarefas .= "
+                <button class='btn btn-secondary btn-sm me-1' ";
+                if ($_SESSION["usuario_admin"] == 0) {
+                    $bodyTarefas .= "disabled";
+                }
+                $bodyTarefas .= "onclick='reabrirTarefa({$retorno['id']})'>
+                    Reabrir
+                </button>
+            ";
         }
-
+        
         $bodyTarefas .= "
             <a href='editartarefas.html?id={$retorno['id']}'
                class='btn btn-warning btn-sm me-1'>
@@ -159,9 +180,9 @@ if ($acao === "atualizar") {
     exit;
 }
 
-if ($acao === "concluir") {
-
-    $id = (int) ($_POST["id"] ?? 0);
+function atualizarStatusTarefa($pdo, $status)
+{
+    $id = (int)($_POST['id'] ?? 0);
 
     if ($id <= 0) {
         http_response_code(400);
@@ -169,9 +190,18 @@ if ($acao === "concluir") {
         exit;
     }
 
-    $sql = $pdo->prepare("UPDATE tarefas SET status = 1 WHERE id = ?");
-    $sql->execute([$id]);
+    $sql = $pdo->prepare("UPDATE tarefas SET status = ? WHERE id = ?");
+    $sql->execute([$status, $id]);
 
+    http_response_code(200);
     echo "OK";
     exit;
+}
+
+if ($acao === "concluir") {
+    atualizarStatusTarefa($pdo, 1);
+}
+
+if ($acao === "reabrir") {
+    atualizarStatusTarefa($pdo, 0);
 }

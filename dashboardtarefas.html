@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Dashboard de Tarefas</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -12,12 +12,34 @@
 
 <body class="bg-light p-3">
 
+    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-white shadow-sm rounded">
+
+        <div class="d-flex align-items-center gap-2">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                style="width:40px; height:40px;">
+                👤
+            </div>
+            <span class="fw-semibold" id="nomeUsuario">Carregando...</span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="dashboardusuario.html" class="btn btn-secondary">
+                Usuários
+            </a>
+
+            <a href="novatarefa.html" class="btn btn-success">
+                ➕ Nova Tarefa
+            </a>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover bg-white shadow-sm w-100">
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
-                    <th>Usuário</th>
+                    <th>ID Usuário</th>
+                    <th>Nome</th>
                     <th>Título</th>
                     <th>Descrição</th>
                     <th>Criação</th>
@@ -31,8 +53,7 @@
     </div>
 
     <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
-        <button id="btnAnterior" class="btn btn-secondary btn-sm"
-            onclick="carregarTarefas(paginaAtual - 1)">
+        <button id="btnAnterior" class="btn btn-secondary btn-sm" onclick="carregarTarefas(paginaAtual - 1)">
             ⬅ Anterior
         </button>
 
@@ -40,8 +61,7 @@
             Página <span id="paginaAtualTexto">1</span>
         </span>
 
-        <button class="btn btn-secondary btn-sm"
-            onclick="carregarTarefas(paginaAtual + 1)">
+        <button class="btn btn-secondary btn-sm" onclick="carregarTarefas(paginaAtual + 1)">
             Próxima ➡
         </button>
     </div>
@@ -60,9 +80,7 @@
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById("corpoTarefas").innerHTML = html;
-
                     document.getElementById("paginaAtualTexto").innerText = paginaAtual;
-
                     document.getElementById("btnAnterior").disabled = paginaAtual === 1;
                 });
         }
@@ -77,13 +95,54 @@
                 .fail(() => alert("Erro ao excluir a tarefa"));
         }
 
-        function concluirTarefa(id) {
-            if (!confirm("Marcar tarefa como concluída?")) return;
-
-            $.post("api/tarefa.php?acao=concluir", { id })
-                .done(() => carregarTarefas(paginaAtual))
-                .fail(() => alert("Erro ao concluir a tarefa"));
+        function editarTarefa(id) {
+            window.location.href = `editartarefa.html?id=${id}`;
         }
+
+        function reabrirTarefa(id) {
+            if (!confirm("Reabrir tarefa?")) return;
+
+            $.post({url: "api/tarefa.php?acao=reabrir", data: { id }, dataType:"text"})
+                .done( function(res) { carregarTarefas(paginaAtual); })
+                .fail(function (xhr, status, error) {
+                    console.log("STATUS:", xhr.status);
+                    console.log("STATUS TEXT:", status);
+                    console.log("ERROR:", error);
+                    console.log("RESPONSE:", xhr.responseText);
+
+                    alert("Erro ao reabrir a tarefa:\n" + xhr.responseText);
+                });
+            }
+
+            fetch("api/usuario_logado.php")
+                .then(res => res.json())
+                .then(usuario => {
+                    document.getElementById("nomeUsuario").innerText = usuario.nome;
+                })
+                .catch(() => {
+                    document.getElementById("nomeUsuario").innerText = "Usuário";
+                });
+
+            function concluirTarefa(id) {
+                if (!confirm("Marcar tarefa como concluída?")) return;
+
+                $.post({url: "api/tarefa.php?acao=concluir", data: { id }, dataType:"text"})
+                    .done(() => carregarTarefas(paginaAtual))
+                    .fail(function (xhr, status, error) {
+
+                    alert("Erro ao concluir a tarefa:\n" + xhr.responseText);
+                });
+            }
+
+            fetch("api/usuario_logado.php")
+                .then(res => res.json())
+                .then(usuario => {
+                    document.getElementById("nomeUsuario").innerText = usuario.nome;
+                })
+                .catch(() => {
+                    document.getElementById("nomeUsuario").innerText = "Usuário";
+                });
+
     </script>
 
 </body>
