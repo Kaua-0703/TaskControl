@@ -4,112 +4,88 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light p-3">
 
-    <table class="table mb-3">
-        <tr>
-            <td class="text-start">
-                <a href="novatarefa.html" class="btn btn-primary">
-                    Adicionar tarefa
-                </a>
-            </td>
-            <td class="text-end">
-                <a href="dashboardusuario.html" class="btn btn-secondary">
-                    Usuários
-                </a>
-            </td>
-        </tr>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-hover bg-white shadow-sm w-100">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Título</th>
+                    <th>Descrição</th>
+                    <th>Criação</th>
+                    <th>Limite</th>
+                    <th>Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTarefas"></tbody>
+        </table>
+    </div>
 
-    <table class="table table-hover shadow-sm bg-white" id="tabelaTarefas">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Usuário</th>
-                <th>Título</th>
-                <th>Descrição</th>
-                <th>Data criação</th>
-                <th>Data limite</th>
-                <th>Status</th>
-            </tr>
-        </thead>
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+        <button id="btnAnterior" class="btn btn-secondary btn-sm"
+            onclick="carregarTarefas(paginaAtual - 1)">
+            ⬅ Anterior
+        </button>
 
-        <tbody id="corpoTarefas">
-            <tr></tr>
-        </tbody>
-    </table>
+        <span class="fw-semibold">
+            Página <span id="paginaAtualTexto">1</span>
+        </span>
+
+        <button class="btn btn-secondary btn-sm"
+            onclick="carregarTarefas(paginaAtual + 1)">
+            Próxima ➡
+        </button>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <script>
-        function carregarTarefas() {
-            fetch("api/tarefa.php?acao=listar")
-                .then(r => r.text())
+        let paginaAtual = 1;
+
+        function carregarTarefas(pagina = 1) {
+            if (pagina < 1) return;
+
+            paginaAtual = pagina;
+
+            fetch(`api/tarefa.php?acao=listar&pagina=${pagina}`)
+                .then(response => response.text())
                 .then(html => {
                     document.getElementById("corpoTarefas").innerHTML = html;
+
+                    document.getElementById("paginaAtualTexto").innerText = paginaAtual;
+
+                    document.getElementById("btnAnterior").disabled = paginaAtual === 1;
                 });
         }
 
         carregarTarefas();
 
         function excluirTarefa(id) {
+            if (!confirm("Deseja excluir esta tarefa?")) return;
 
-            if (!confirm("Tem certeza que deseja excluir esta tarefa?")) {
-                return;
-            }
-
-            $.ajax({
-                url: "api/tarefa.php?acao=excluir",
-                method: "POST",
-                data: {
-                    id: id
-                },
-                dataType: "text"
-            })
-            .done(function (res) {
-                if (res.trim() === "OK") {
-                    carregarTarefas();
-                } else {
-                    alert("Erro ao excluir tarefa. " + res);
-                }
-            })
-            .fail(function (xhr) {
-                var txt = xhr.responseText && xhr.responseText.trim() !== ""
-                    ? xhr.responseText
-                    : "Erro ao excluir tarefa.";
-
-                alert(txt);
-            });
+            $.post("api/tarefa.php?acao=excluir", { id })
+                .done(() => carregarTarefas(paginaAtual))
+                .fail(() => alert("Erro ao excluir a tarefa"));
         }
 
         function concluirTarefa(id) {
-            if (!confirm("Marcar esta tarefa como concluída?")) {
-                return;
-            }
+            if (!confirm("Marcar tarefa como concluída?")) return;
 
-            $.ajax({
-                url: "api/tarefa.php?acao=concluir",
-                method: "POST",
-                data: { id: id },
-                dataType: "text"
-            })
-            .done(function (res) {
-                if (res.trim() === "OK") {
-                    carregarTarefas();
-                } else {
-                    alert(res);
-                }
-            })
-            .fail(function () {
-                alert("Erro ao concluir tarefa.");
-            });
+            $.post("api/tarefa.php?acao=concluir", { id })
+                .done(() => carregarTarefas(paginaAtual))
+                .fail(() => alert("Erro ao concluir a tarefa"));
         }
     </script>
 
 </body>
+
 </html>

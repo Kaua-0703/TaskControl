@@ -5,19 +5,25 @@ $acao = isset($_GET["acao"]) ? trim($_GET["acao"]) : "";
 
 if ($acao === "listar") {
 
+    $pagina = isset($_GET["pagina"]) ? (int) $_GET["pagina"] : 1;
+    $limite = 5;
+    $offset = ($pagina - 1) * $limite;
+
     $sql = $pdo->prepare("
         SELECT id, id_usuario, titulo, descricao, status, data_criacao, data_limite
         FROM tarefas
+        ORDER BY id DESC
+        LIMIT :limite OFFSET :offset
     ");
+    $sql->bindValue(":limite", $limite, PDO::PARAM_INT);
+    $sql->bindValue(":offset", $offset, PDO::PARAM_INT);
     $sql->execute();
 
     $bodyTarefas = "";
 
     while ($retorno = $sql->fetch(PDO::FETCH_ASSOC)) {
 
-        $statusTexto = ($retorno['status'] == 1)
-            ? "Concluída"
-            : "Pendente";
+        $statusTexto = ($retorno["status"] == 1) ? "Concluída" : "Pendente";
 
         $bodyTarefas .= "<tr>";
         $bodyTarefas .= "<td>{$retorno['id']}</td>";
@@ -30,7 +36,7 @@ if ($acao === "listar") {
 
         $bodyTarefas .= "<td class='text-end'>";
 
-        if ($retorno['status'] == 0) {
+        if ($retorno["status"] == 0) {
             $bodyTarefas .= "
                 <button class='btn btn-success btn-sm me-1'
                     onclick='concluirTarefa({$retorno['id']})'>
@@ -55,24 +61,19 @@ if ($acao === "listar") {
     }
 
     echo $bodyTarefas;
+    exit;
 }
 
 if ($acao === "cadastrar") {
 
-    $id_usuario   = isset($_POST["id_usuario"]) ? trim($_POST["id_usuario"]) : "";
-    $titulo       = isset($_POST["titulo"]) ? trim($_POST["titulo"]) : "";
-    $descricao    = isset($_POST["descricao"]) ? trim($_POST["descricao"]) : "";
+    $id_usuario   = trim($_POST["id_usuario"] ?? "");
+    $titulo       = trim($_POST["titulo"] ?? "");
+    $descricao    = trim($_POST["descricao"] ?? "");
+    $data_criacao = trim($_POST["data_criacao"] ?? "");
+    $data_limite  = trim($_POST["data_limite"] ?? "");
     $status = 0;
-    $data_criacao = isset($_POST["data_criacao"]) ? trim($_POST["data_criacao"]) : "";
-    $data_limite  = isset($_POST["data_limite"]) ? trim($_POST["data_limite"]) : "";
 
-    if (
-        $id_usuario == "" ||
-        $titulo == "" ||
-        $descricao == "" ||
-        $data_criacao == "" ||
-        $data_limite == ""
-    ) {
+    if ($id_usuario == "" || $titulo == "" || $descricao == "" || $data_criacao == "" || $data_limite == "") {
         http_response_code(400);
         echo "Preencha todos os campos.";
         exit;
@@ -93,11 +94,12 @@ if ($acao === "cadastrar") {
     ]);
 
     echo "OK";
+    exit;
 }
 
 if ($acao === "excluir") {
 
-    $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
+    $id = (int) ($_POST["id"] ?? 0);
 
     if ($id <= 0) {
         http_response_code(400);
@@ -109,11 +111,12 @@ if ($acao === "excluir") {
     $sql->execute([$id]);
 
     echo "OK";
+    exit;
 }
 
 if ($acao === "buscar") {
 
-    $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
+    $id = (int) ($_POST["id"] ?? 0);
 
     if ($id <= 0) {
         http_response_code(400);
@@ -134,10 +137,10 @@ if ($acao === "buscar") {
 
 if ($acao === "atualizar") {
 
-    $id          = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
-    $titulo      = isset($_POST["titulo"]) ? trim($_POST["titulo"]) : "";
-    $descricao   = isset($_POST["descricao"]) ? trim($_POST["descricao"]) : "";
-    $data_limite = isset($_POST["data_limite"]) ? trim($_POST["data_limite"]) : "";
+    $id          = (int) ($_POST["id"] ?? 0);
+    $titulo      = trim($_POST["titulo"] ?? "");
+    $descricao   = trim($_POST["descricao"] ?? "");
+    $data_limite = trim($_POST["data_limite"] ?? "");
 
     if ($id <= 0 || $titulo == "" || $descricao == "" || $data_limite == "") {
         http_response_code(400);
@@ -153,11 +156,12 @@ if ($acao === "atualizar") {
     $sql->execute([$titulo, $descricao, $data_limite, $id]);
 
     echo "OK";
+    exit;
 }
 
 if ($acao === "concluir") {
 
-    $id = isset($_POST["id"]) ? (int) $_POST["id"] : 0;
+    $id = (int) ($_POST["id"] ?? 0);
 
     if ($id <= 0) {
         http_response_code(400);
@@ -165,14 +169,9 @@ if ($acao === "concluir") {
         exit;
     }
 
-    $sql = $pdo->prepare("
-        UPDATE tarefas
-        SET status = 1
-        WHERE id = ?
-    ");
+    $sql = $pdo->prepare("UPDATE tarefas SET status = 1 WHERE id = ?");
     $sql->execute([$id]);
 
     echo "OK";
+    exit;
 }
-
-?>
