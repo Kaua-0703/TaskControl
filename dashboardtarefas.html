@@ -23,13 +23,19 @@
         </div>
 
         <div class="d-flex gap-2">
-            <a href="dashboardusuario.html" class="btn btn-secondary">
-                Usuários
+
+            <a href="login.html" class="btn btn-outline-danger">
+                Logout
             </a>
+
+            <button class="btn btn-secondary d-none" id="btnUsuario">
+                Usuários
+            </button>
 
             <a href="novatarefa.html" class="btn btn-success">
                 ➕ Nova Tarefa
             </a>
+
         </div>
     </div>
 
@@ -87,6 +93,33 @@
 
         carregarTarefas();
 
+        function botaoUsuario() {
+            return document.getElementById("btnUsuario");
+        }
+        fetch("api/usuario_logado.php")
+            .then(res => res.json())
+            .then(usuario => {
+                document.getElementById("nomeUsuario").innerText = usuario.nome;
+
+                if (usuario.admin == 1) {
+
+                    btnUsuario.classList.remove("d-none");
+
+                    btnUsuario.addEventListener("click", () => {
+                        window.location.href = "dashboardusuario.html";
+                    });
+                } else {
+
+                    btnUsuario.classList.add("d-none");
+
+                }
+            })
+            .catch(() => {
+                document.getElementById("nomeUsuario").innerText = "Usuário";
+                btnUsuario.style.display = "none";
+            });
+
+
         function excluirTarefa(id) {
             if (!confirm("Deseja excluir esta tarefa?")) return;
 
@@ -102,8 +135,8 @@
         function reabrirTarefa(id) {
             if (!confirm("Reabrir tarefa?")) return;
 
-            $.post({url: "api/tarefa.php?acao=reabrir", data: { id }, dataType:"text"})
-                .done( function(res) { carregarTarefas(paginaAtual); })
+            $.post({ url: "api/tarefa.php?acao=reabrir", data: { id }, dataType: "text" })
+                .done(function (res) { carregarTarefas(paginaAtual); })
                 .fail(function (xhr, status, error) {
                     console.log("STATUS:", xhr.status);
                     console.log("STATUS TEXT:", status);
@@ -112,36 +145,36 @@
 
                     alert("Erro ao reabrir a tarefa:\n" + xhr.responseText);
                 });
-            }
+        }
 
-            fetch("api/usuario_logado.php")
-                .then(res => res.json())
-                .then(usuario => {
-                    document.getElementById("nomeUsuario").innerText = usuario.nome;
-                })
-                .catch(() => {
-                    document.getElementById("nomeUsuario").innerText = "Usuário";
-                });
+        fetch("api/usuario_logado.php")
+            .then(res => res.json())
+            .then(usuario => {
+                document.getElementById("nomeUsuario").innerText = usuario.nome;
+            })
+            .catch(() => {
+                document.getElementById("nomeUsuario").innerText = "Usuário";
+            });
 
-            function concluirTarefa(id) {
-                if (!confirm("Marcar tarefa como concluída?")) return;
+        function concluirTarefa(id) {
+            if (!confirm("Marcar tarefa como concluída?")) return;
 
-                $.post({url: "api/tarefa.php?acao=concluir", data: { id }, dataType:"text"})
-                    .done(() => carregarTarefas(paginaAtual))
-                    .fail(function (xhr, status, error) {
+            $.post({ url: "api/tarefa.php?acao=concluir", data: { id }, dataType: "text" })
+                .done(() => carregarTarefas(paginaAtual))
+                .fail(function (xhr, status, error) {
 
                     alert("Erro ao concluir a tarefa:\n" + xhr.responseText);
                 });
-            }
+        }
 
-            fetch("api/usuario_logado.php")
-                .then(res => res.json())
-                .then(usuario => {
-                    document.getElementById("nomeUsuario").innerText = usuario.nome;
-                })
-                .catch(() => {
-                    document.getElementById("nomeUsuario").innerText = "Usuário";
-                });
+        fetch("api/usuario_logado.php")
+            .then(res => res.json())
+            .then(usuario => {
+                document.getElementById("nomeUsuario").innerText = usuario.nome;
+            })
+            .catch(() => {
+                document.getElementById("nomeUsuario").innerText = "Usuário";
+            });
 
     </script>
 

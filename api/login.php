@@ -28,7 +28,7 @@ if (!$retorno) {
 
 if (!password_verify($senha, $retorno["senha"])) {
     http_response_code(401);
-    echo "Usuário ou senha inválidos.pp";
+    echo "Usuário ou senha inválidos.";
     exit;
 }
 
