@@ -24,20 +24,42 @@
 
         <div class="d-flex gap-2">
 
-            <a href="login.html" class="btn btn-outline-danger">
+            <button class="btn btn-outline-danger" onclick="logout()">
                 Logout
-            </a>
+            </button>
 
             <button class="btn btn-secondary d-none" id="btnUsuario">
                 Usuários
             </button>
 
             <a href="novatarefa.html" class="btn btn-success">
-                ➕ Nova Tarefa
+                Nova Tarefa
             </a>
 
         </div>
     </div>
+
+    <div class="d-flex align-items-end gap-2 mb-3">
+        <div>
+            <label class="form-label mb-1">Título</label>
+            <input type="text" id="filtroTitulo" class="form-control" placeholder="Buscar por título"
+                style="width: 250px;">
+        </div>
+
+        <div>
+            <label class="form-label mb-1">Status</label>
+            <select id="filtroStatus" class="form-select" style="width: 180px;">
+                <option value="">Todos</option>
+                <option value="0">Pendente</option>
+                <option value="1">Concluída</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary btn-sm mb-1" onclick="aplicarFiltro()">
+            Filtrar
+        </button>
+    </div>
+
 
     <div class="table-responsive">
         <table class="table table-hover bg-white shadow-sm w-100">
@@ -77,12 +99,20 @@
     <script>
         let paginaAtual = 1;
 
+        function aplicarFiltro() {
+            paginaAtual = 1;
+            carregarTarefas(paginaAtual);
+        }
+
         function carregarTarefas(pagina = 1) {
             if (pagina < 1) return;
 
             paginaAtual = pagina;
 
-            fetch(`api/tarefa.php?acao=listar&pagina=${pagina}`)
+            const titulo = document.getElementById("filtroTitulo").value;
+            const status = document.getElementById("filtroStatus").value;
+
+            fetch(`api/tarefa.php?acao=listar&pagina=${pagina}&titulo=${encodeURIComponent(titulo)}&status=${status}`)
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById("corpoTarefas").innerHTML = html;
@@ -102,16 +132,12 @@
                 document.getElementById("nomeUsuario").innerText = usuario.nome;
 
                 if (usuario.admin == 1) {
-
                     btnUsuario.classList.remove("d-none");
-
                     btnUsuario.addEventListener("click", () => {
                         window.location.href = "dashboardusuario.html";
                     });
                 } else {
-
                     btnUsuario.classList.add("d-none");
-
                 }
             })
             .catch(() => {
@@ -138,10 +164,6 @@
             $.post({ url: "api/tarefa.php?acao=reabrir", data: { id }, dataType: "text" })
                 .done(function (res) { carregarTarefas(paginaAtual); })
                 .fail(function (xhr, status, error) {
-                    console.log("STATUS:", xhr.status);
-                    console.log("STATUS TEXT:", status);
-                    console.log("ERROR:", error);
-                    console.log("RESPONSE:", xhr.responseText);
 
                     alert("Erro ao reabrir a tarefa:\n" + xhr.responseText);
                 });
@@ -175,6 +197,13 @@
             .catch(() => {
                 document.getElementById("nomeUsuario").innerText = "Usuário";
             });
+
+        function logout() {
+            fetch("api/logout.php")
+                .then(() => {
+                    window.location.href = "login.html";
+                });
+        }
 
     </script>
 

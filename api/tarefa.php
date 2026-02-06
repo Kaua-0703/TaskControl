@@ -9,7 +9,10 @@ if ($acao === "listar") {
     $limite = 10;
     $offset = ($pagina - 1) * $limite;
 
-    $sql = $pdo->prepare("
+    $titulo = trim($_GET["titulo"] ?? "");
+    $status = $_GET["status"] ?? "";
+
+    $sqlTxt = "
         SELECT 
             t.id,
             t.id_usuario,
@@ -21,9 +24,32 @@ if ($acao === "listar") {
             t.data_limite
         FROM tarefas t
         INNER JOIN usuario u ON u.id = t.id_usuario
+        WHERE 1=1
+    ";
+
+    $params = [];
+
+    if ($titulo !== "") {
+        $sqlTxt .= " AND t.titulo LIKE :titulo";
+        $params[":titulo"] = "%$titulo%";
+    }
+
+    if ($status !== "") {
+        $sqlTxt .= " AND t.status = :status";
+        $params[":status"] = $status;
+    }
+
+    $sqlTxt .= "
         ORDER BY t.id DESC
         LIMIT :limite OFFSET :offset
-    ");
+    ";
+
+    $sql = $pdo->prepare($sqlTxt);
+
+    foreach ($params as $key => $value) {
+        $sql->bindValue($key, $value);
+    }
+
 
     $sql->bindValue(":limite", $limite, PDO::PARAM_INT);
     $sql->bindValue(":offset", $offset, PDO::PARAM_INT);
