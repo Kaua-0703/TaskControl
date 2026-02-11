@@ -48,6 +48,15 @@ if ($acao === "cadastrar"){
         exit;
     }
 
+    $verificaemail = $pdo->prepare("SELECT id FROM usuario WHERE email = ?");
+    $verificaemail->execute([$email]);
+
+    if ($verificaemail->fetch(PDO::FETCH_ASSOC)) {
+        http_response_code(400);
+        echo "Email já cadastrado.";
+        exit;
+    }
+    
     $hashSenha = password_hash($senha, PASSWORD_DEFAULT);
 
     $sql = $pdo->prepare("INSERT INTO usuario (nome, email, senha, admin) VALUES (?, ?, ?, ?)");
