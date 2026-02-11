@@ -112,7 +112,7 @@
             const titulo = document.getElementById("filtroTitulo").value;
             const status = document.getElementById("filtroStatus").value;
 
-            fetch(`api/tarefa.php?acao=listar&pagina=${pagina}&titulo=${encodeURIComponent(titulo)}&status=${status}`)
+            fetch(`../api/tarefa.php?acao=listar&pagina=${pagina}&titulo=${encodeURIComponent(titulo)}&status=${status}`)
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById("corpoTarefas").innerHTML = html;
@@ -126,7 +126,7 @@
         function botaoUsuario() {
             return document.getElementById("btnUsuario");
         }
-        fetch("api/usuario_logado.php")
+        fetch("../api/usuario_logado.php")
             .then(res => res.json())
             .then(usuario => {
                 document.getElementById("nomeUsuario").innerText = usuario.nome;
@@ -149,7 +149,7 @@
         function excluirTarefa(id) {
             if (!confirm("Deseja excluir esta tarefa?")) return;
 
-            $.post("api/tarefa.php?acao=excluir", { id })
+            $.post({ url: "../api/tarefa.php?acao=excluir", data: { id }, dataType: "text" })
                 .done(() => carregarTarefas(paginaAtual))
                 .fail(() => alert("Erro ao excluir a tarefa"));
         }
@@ -161,7 +161,7 @@
         function reabrirTarefa(id) {
             if (!confirm("Reabrir tarefa?")) return;
 
-            $.post({ url: "api/tarefa.php?acao=reabrir", data: { id }, dataType: "text" })
+            $.post({ url: "../api/tarefa.php?acao=reabrir", data: { id }, dataType: "text" })
                 .done(function (res) { carregarTarefas(paginaAtual); })
                 .fail(function (xhr, status, error) {
 
@@ -169,7 +169,7 @@
                 });
         }
 
-        fetch("api/usuario_logado.php")
+        fetch("../api/usuario_logado.php")
             .then(res => res.json())
             .then(usuario => {
                 document.getElementById("nomeUsuario").innerText = usuario.nome;
@@ -181,7 +181,7 @@
         function concluirTarefa(id) {
             if (!confirm("Marcar tarefa como concluída?")) return;
 
-            $.post({ url: "api/tarefa.php?acao=concluir", data: { id }, dataType: "text" })
+            $.post({ url: "../api/tarefa.php?acao=concluir", data: { id }, dataType: "text" })
                 .done(() => carregarTarefas(paginaAtual))
                 .fail(function (xhr, status, error) {
 
@@ -189,7 +189,7 @@
                 });
         }
 
-        fetch("api/usuario_logado.php")
+        fetch("../api/usuario_logado.php")
             .then(res => res.json())
             .then(usuario => {
                 document.getElementById("nomeUsuario").innerText = usuario.nome;
@@ -199,7 +199,7 @@
             });
 
         function logout() {
-            fetch("api/logout.php")
+            fetch("../api/logout.php")
                 .then(() => {
                     window.location.href = "login.html";
                 });

@@ -47,7 +47,7 @@
 
     <script>
         function carregarUsuarios() {
-            fetch("api/usuario.php?acao=listar")
+            fetch("../api/usuario.php?acao=listar")
                 .then(r => r.text())
                 .then(html => {
                     document.getElementById("corpoUsuarios").innerHTML = html;
@@ -63,7 +63,7 @@
 
             if (!confirm("Deseja realmente excluir este usuário?")) return;
 
-            fetch("api/usuario.php?acao=excluir", {
+            fetch("../api/usuario.php?acao=excluir", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"

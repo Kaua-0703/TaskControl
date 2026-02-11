@@ -42,7 +42,7 @@
             var id = window.location.search.replace("?id=", "");
 
             $.ajax({
-                url: "api/usuario.php?acao=buscar",
+                url: "../api/usuario.php?acao=buscar",
                 method: "POST",
                 data: {
                     id: id
@@ -70,7 +70,7 @@
                 var admin = $("#admin").is(":checked");
 
                 $.ajax({
-                    url: "api/usuario.php?acao=atualizar",
+                    url: "../api/usuario.php?acao=atualizar",
                     method: "POST",
                     data: {
                         id: id,
